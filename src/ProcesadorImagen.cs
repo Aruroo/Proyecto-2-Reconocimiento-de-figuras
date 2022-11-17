@@ -33,28 +33,24 @@ namespace ReconocimientoFiguras
             this.color = color;
 
         }
-
+        
+        /// <summary>
+        /// Devuelve el color del pixel
+        /// </summary>
         public Color getColor(){
             return color;
         }
 
         /// <summary>
-        /// Comparador de igualdad entre dos pixeles
+        /// Devuelve la coordenada x del pixel
         /// </summary>
-        /// <param name="obj">Pixel a comparar</param>
-        /// <returns>True si son iguales, false si no lo son</returns>
-
-        public bool mismoColor(Pixel pixel)
-        {
-
-            return this.color == pixel.color;
-
-        }
-
         public int getX(){
             return x;
         }
 
+        /// <summary>
+        /// Devuelve la coordenada y del pixel
+        /// </summary>
         public int getY(){
             return y;
         }
@@ -90,6 +86,13 @@ namespace ReconocimientoFiguras
             pixeles.Add(pixel);
         }
 
+        public List <Pixel> ObtenPixeles() {
+            return pixeles;
+        }
+        
+        /// <summary>
+        ///Representa a la imagen con un string
+        /// </summary>
         public string toString()
         {
             return "Figura de color " + getColor() + " con " + pixeles.Count + " pixeles";
@@ -104,8 +107,7 @@ namespace ReconocimientoFiguras
             if(pixeles.Count == 0)
             {
                 return null;
-            } else
-            {
+            } else{
                 Pixel primerPixel = pixeles[0];
                 Pixel ultimoPixel = pixeles[pixeles.Count -1];  
                 Pixel centro =new Pixel((primerPixel.getX() + ultimoPixel.getX())/2, (primerPixel.getY() + ultimoPixel.getY())/2, primerPixel.getColor());
@@ -115,10 +117,8 @@ namespace ReconocimientoFiguras
                     return pixel;
                     }
                 }
+                return centro;
             }
-
-            return centro;
-            
         }
 
         ///<summary>
@@ -164,7 +164,12 @@ namespace ReconocimientoFiguras
     public class ProcesadorImagen
     {
         private Bitmap imagen;
+        private Color fondo;
 
+        /// <summary>
+        /// Constructor de la clase ProcesadorImagen
+        /// </summary>
+        /// <param name="imagen">Imagen a procesar</param>
         public ProcesadorImagen(Bitmap imagen)
         {
             if (imagen == null)
@@ -172,7 +177,46 @@ namespace ReconocimientoFiguras
                 throw new ArgumentNullException("imagen");
             }
             this.imagen = imagen;
+            this.fondo = imagen.GetPixel(0, 0);
 
+        }
+
+        ///
+        ///<summary>
+        /// Obtiene los bordes de una figura dada.
+        ///</summary>
+        ///<param name= "figura"> La figura a analizar</param>
+        private List<Pixel> obtenBordes(Figura figura)
+        {
+            List <Pixel> pixeles = figura.ObtenPixeles();
+            List <Pixel> bordes = new List<Pixel>;
+
+            foreach (Pixel pixel in pixeles)
+            {
+                if(vecinoEnFondo(pixel.getX(), pixel.getY())){
+                    bordes.Add(pixel);
+                } 
+            }
+            return bordes;
+        }
+
+        private bool vecinoEnFondo(int x, int y)
+        {
+            try
+            {
+                return (esFondo(x-1,y-1) || esFondo(x-1,y) || esFondo(x-1,y+1) ||
+                    esFondo(x,y-1)  || esFondo(x,y+1) || esFondo(x+1, y-1) ||
+                    esFondo (x+1, y) || esFondo(x+1, y+1))
+            }
+            catch (System.ArgumentOutOfRangeException)
+            {
+                return true;
+            }
+            return false;
+        }
+
+        private bool esFondo(int x, int y){
+            return imagen.GetPixel(x,y).Equals(fondo);
         }
 
         /// <summary>
@@ -183,25 +227,21 @@ namespace ReconocimientoFiguras
         /// <returns>Una lista con las figuras presentes en la imagen</returns>
         public List <Figura> RecorreImagen(){
             //el color del fondo es el primer pixel en la imagen
-            Pixel fondo = new Pixel(0,0,imagen.GetPixel(0,0));
+            Pixel fondoPixel = new Pixel(0,0,imagen.GetPixel(0,0));
             List <Figura> figuras = new List<Figura>();
-
-            //recorremos la imagen como un arreglo bidiemnsional
             for (int i = 0; i < imagen.Width; i++)
             {
                 for (int j = 0; j < imagen.Height; j++)
                 {
-                    //si el pixel no es del color del fondo, lo agregamos a una figura
-                    if (!imagen.GetPixel(i,j).Equals(fondo.getColor()))
+                    if (!imagen.GetPixel(i,j).Equals(fondoPixel.getColor()))
                     {
                         anexaPixel(figuras, new Pixel(i,j,imagen.GetPixel(i,j)));
                     }
                 }
             }
-
             return figuras;
-
         }
+        
         /// <summary>
         /// anexa el pixel a una figura en la lista dada.
         /// si no existe una figura con si mismo color, la crea y 
@@ -241,7 +281,7 @@ namespace ReconocimientoFiguras
             Bitmap imagen = new Bitmap(nombreImagen);
             ProcesadorImagen procesador = new ProcesadorImagen(imagen);
 
-            Console.WriteLine("La imagen tiene {0} pixeles de ancho y {1} pixeles de largo", imagen.Width, imagen.Height);
+            Console.WriteLine("La imagen tiene {0} pixeles de ancho y {1} pixeles de alto", imagen.Width, imagen.Height);
             List<Figura> figuras = procesador.RecorreImagen();
             foreach (Figura figura in figuras)
             {
