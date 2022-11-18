@@ -34,9 +34,9 @@ namespace ReconocimientoFiguras
         public Pixel encuentraCentro(){
             Pixel primerPixel = pixeles[0];
             Pixel ultimoPixel = pixeles[pixeles.Lengh-1];
-            int medioX = (primerPixel.getX + ultimoPixel.getX)/2
-            int medioY = (primerPixel.getY + ultimoPixel.getY)/2
-            Pixel pixel = new Pixel (medioX, medioY , primerPixel.getColor())
+            int medioX = (primerPixel.getX + ultimoPixel.getX)/2;
+            int medioY = (primerPixel.getY + ultimoPixel.getY)/2;
+            Pixel pixel = new Pixel (medioX, medioY , primerPixel.getColor());
             return pixeles[pixeles.IndexOf(pixel)];
         }
 
