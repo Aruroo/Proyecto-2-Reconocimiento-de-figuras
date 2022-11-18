@@ -37,21 +37,21 @@ namespace ReconocimientoFiguras
         /// <summary>
         /// Devuelve el color del pixel
         /// </summary>
-        public Color getColor(){
+        public Color ObtenColor(){
             return color;
         }
 
         /// <summary>
         /// Devuelve la coordenada x del pixel
         /// </summary>
-        public int getX(){
+        public int ObtenX(){
             return x;
         }
 
         /// <summary>
         /// Devuelve la coordenada y del pixel
         /// </summary>
-        public int getY(){
+        public int ObtenY(){
             return y;
         }
     }
@@ -73,19 +73,22 @@ namespace ReconocimientoFiguras
         /// <summary>
         /// Obtiene el color de la figura
         /// </summary>
-        public Color getColor()
+        public Color ObtenColor()
         {
-            return pixeles[0].getColor();
+            return pixeles[0].ObtenColor();
         }
 
         ///<summary>
         ///agrega el pixel dado a esta figura
         ///</summary>
-        public void agregaPixel(Pixel pixel)
+        public void AgregaPixel(Pixel pixel)
         {
             pixeles.Add(pixel);
         }
 
+        /// <summary>
+        /// Obtiene una lista con los pixeles de la figura
+        /// </summary>
         public List <Pixel> ObtenPixeles() {
             return pixeles;
         }
@@ -93,16 +96,16 @@ namespace ReconocimientoFiguras
         /// <summary>
         ///Representa a la imagen con un string
         /// </summary>
-        public string toString()
+        public string AString()
         {
-            return "Figura de color " + getColor() + " con " + pixeles.Count + " pixeles";
+            return "Figura de color " + ObtenColor() + " con " + pixeles.Count + " pixeles";
         }
 
         ///<summary>
         ///encuentra el centro de la figura
         ///</summary>
         ///<returns> el Pixel del centro de la figura </returns>
-        public Pixel encuentraCentro()
+        public Pixel EncuentraCentro()
         {
             if(pixeles.Count == 0)
             {
@@ -110,10 +113,10 @@ namespace ReconocimientoFiguras
             } else{
                 Pixel primerPixel = pixeles[0];
                 Pixel ultimoPixel = pixeles[pixeles.Count -1];  
-                Pixel centro =new Pixel((primerPixel.getX() + ultimoPixel.getX())/2, (primerPixel.getY() + ultimoPixel.getY())/2, primerPixel.getColor());
+                Pixel centro =new Pixel((primerPixel.ObtenX() + ultimoPixel.ObtenX())/2, (primerPixel.ObtenY() + ultimoPixel.ObtenY())/2, primerPixel.ObtenColor());
                 //Buscamos el centro en la lista de pixeles
                 foreach(Pixel pixel in pixeles){
-                    if(pixel.getX() == centro.getX() && pixel.getY() == centro.getY()){
+                    if(pixel.ObtenX() == centro.ObtenX() && pixel.ObtenY() == centro.ObtenY()){
                     return pixel;
                     }
                 }
@@ -127,10 +130,10 @@ namespace ReconocimientoFiguras
         ///puntos máximos de la figura, que serán interpretados como los vértices
         ///</summary>
         ///<returns> una lista de pixeles que representan los vértices de la figura </returns>
-        public List<Pixel> encuentraVertices()
+        public List<Pixel> EncuentraVertices()
         {
             List<Pixel> vertices = new List<Pixel>();
-            Pixel centro = encuentraCentro();
+            Pixel centro = EncuentraCentro();
             
             return vertices;
         }
@@ -141,9 +144,9 @@ namespace ReconocimientoFiguras
         ///<returns> una cadena con el nombre de la figura:
         ///Triangulo, Cuadrilatero, Circulo u otro
         ///</returns>
-        public string determinaFigura()
+        public string DeterminaFigura()
         {
-            int numeroVertices = encuentraVertices().Count;
+            int numeroVertices = EncuentraVertices().Count;
             if(numeroVertices == 3)
             {
                 return "Triangulo";
@@ -186,36 +189,47 @@ namespace ReconocimientoFiguras
         /// Obtiene los bordes de una figura dada.
         ///</summary>
         ///<param name= "figura"> La figura a analizar</param>
-        private List<Pixel> obtenBordes(Figura figura)
+        private List<Pixel> ObtenBordes(Figura figura)
         {
             List <Pixel> pixeles = figura.ObtenPixeles();
-            List <Pixel> bordes = new List<Pixel>;
+            List <Pixel> bordes = new List<Pixel>();
 
             foreach (Pixel pixel in pixeles)
             {
-                if(vecinoEnFondo(pixel.getX(), pixel.getY())){
+                if(VecinoEnFondo(pixel.ObtenX(), pixel.ObtenY())){
                     bordes.Add(pixel);
                 } 
             }
             return bordes;
         }
 
-        private bool vecinoEnFondo(int x, int y)
+        /// <summary>
+        /// Checa que si alguno de sus Pixeles vecinos sea del color de fondo
+        /// </summary>
+        /// <param name="x">Coordenada x del pixel</param>
+        /// <param name="y">Coordenada y del pixel</param>
+        /// <returns>True si alguno de sus pixeles vecinos es del color de fondo</returns>
+        private bool VecinoEnFondo(int x, int y)
         {
             try
             {
-                return (esFondo(x-1,y-1) || esFondo(x-1,y) || esFondo(x-1,y+1) ||
-                    esFondo(x,y-1)  || esFondo(x,y+1) || esFondo(x+1, y-1) ||
-                    esFondo (x+1, y) || esFondo(x+1, y+1))
+                return (EsFondo(x-1,y-1) || EsFondo(x-1,y) || EsFondo(x-1,y+1) ||
+                    EsFondo(x,y-1)  || EsFondo(x,y+1) || EsFondo(x+1, y-1) ||
+                    EsFondo (x+1, y) || EsFondo(x+1, y+1));
             }
             catch (System.ArgumentOutOfRangeException)
             {
                 return true;
             }
-            return false;
         }
-
-        private bool esFondo(int x, int y){
+        
+        ///<summary>
+        /// Determina si el pixel dado es del color de fondo 
+        ///</summary>
+        /// <param name="x">Coordenada x del pixel</param>
+        /// <param name="y">Coordenada y del pixel</param>
+        /// <returns>True si el pixel es del color de fondo</returns>
+        private bool EsFondo(int x, int y){
             return imagen.GetPixel(x,y).Equals(fondo);
         }
 
@@ -233,9 +247,9 @@ namespace ReconocimientoFiguras
             {
                 for (int j = 0; j < imagen.Height; j++)
                 {
-                    if (!imagen.GetPixel(i,j).Equals(fondoPixel.getColor()))
+                    if (!imagen.GetPixel(i,j).Equals(fondoPixel.ObtenColor()))
                     {
-                        anexaPixel(figuras, new Pixel(i,j,imagen.GetPixel(i,j)));
+                        AnexaPixel(figuras, new Pixel(i,j,imagen.GetPixel(i,j)));
                     }
                 }
             }
@@ -249,15 +263,15 @@ namespace ReconocimientoFiguras
         /// </summary>
         /// <param name="pixel">Pixel a anexar</param>
         /// <param name="figuras">Lista de figuras</param>
-        private void anexaPixel(List<Figura> figuras, Pixel pixel)
+        private void AnexaPixel(List<Figura> figuras, Pixel pixel)
         {
             bool agregado = false;
 
             foreach (Figura figura in figuras)
             {
-                if(figura.getColor().Equals(pixel.getColor()))
+                if(figura.ObtenColor().Equals(pixel.ObtenColor()))
                 {
-                    figura.agregaPixel(pixel);
+                    figura.AgregaPixel(pixel);
                     agregado = true;
                     return;
                 }
@@ -280,14 +294,13 @@ namespace ReconocimientoFiguras
             string nombreImagen = Console.ReadLine();
             Bitmap imagen = new Bitmap(nombreImagen);
             ProcesadorImagen procesador = new ProcesadorImagen(imagen);
-
             Console.WriteLine("La imagen tiene {0} pixeles de ancho y {1} pixeles de alto", imagen.Width, imagen.Height);
             List<Figura> figuras = procesador.RecorreImagen();
             foreach (Figura figura in figuras)
             {
-                Console.WriteLine(figura.toString());
-                Pixel centro = figura.encuentraCentro();
-                Console.WriteLine("Centro: " + centro.getX() + ", " + centro.getY());
+                Console.WriteLine(figura.AString());
+                Pixel centro = figura.EncuentraCentro();
+                Console.WriteLine("Centro: " + centro.ObtenX() + ", " + centro.ObtenY());
             }
         }
     }
