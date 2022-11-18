@@ -97,7 +97,7 @@ namespace ReconocimientoFiguras {
         /// Encuentra el centro de la figura.
         /// </summary>
         /// <returns> El Pixel del centro de la figura. </returns>
-        public Pixel EncuentraCentro()
+        private Pixel EncuentraCentro()
         {
             if(pixeles.Count == 0)
             {
@@ -122,16 +122,24 @@ namespace ReconocimientoFiguras {
         /// interpretados como los vértices.
         /// </summary>
         /// <returns> Cantidad de máximos, o bien, el número de vértices de esta figura. </returns>
-        public int EncuentraVertices()
+        private int EncuentraVertices()
         {
-            List<Pixel> vertices = new List<Pixel>();
-            List<double> distancias = ObtenDistancias();
+            List<List<double>> distancias = ObtenDistancias();
             int maximos = 0;
             for(int i = 1; i < distancias.Count; i++)
             {
-                if((distancias[i] > distancias[i - 1]) && (distancias[i] > distancias[i + 1]))
+                for(int j = 0; j < distancias[0].Count; j++)
                 {
+                    if((j+1 < distancias[0].Count) && (distancias[0][j] > distancias[j - 1]) && (distancias[j] > distancias[j + 1])) {
                     maximos++;
+                    }
+                }
+
+                for(int k = 0; j < distancias[1].Count; j++)
+                {
+                    if((k+1 < distancias[1].Count) && (distancias[1][k] > distancias[k - 1]) && (distancias[1][k] > distancias[k + 1])) {
+                    maximos++;
+                    }
                 }
             }
             return maximos;
@@ -139,17 +147,29 @@ namespace ReconocimientoFiguras {
 
         /// <summary>
         /// Obtiene las distancias entre los puntos que están en el borde y el centro de la
-        /// figura para calcular la cantidad de máximos que hay.
+        /// figura.
         /// </summary>
-        /// <returns> Lista de distancias. </returns>
-        private List<double> ObtenDistancias()
+        /// <returns> Lista de listas de distancias (para preservar un orden). </returns>
+        private List<List<double>> ObtenDistancias()
         {
-            List<double> distancias = new List<int>();
+            List<List<double>> distancias;
+            List<double> parte1;
+            List<double> parte2;
+
+            // Variable que controla el almacenamiento de las distancias.
+            bool partes = true;
+
             Pixel centro = EncuentraCentro();
-            foreach (Pixel pixel in ObtenBordes())
+            List<Pixel> bordes = ObtenBordes();
+            foreach (Pixel pixel in bordes)
             {
-                distancias.Add(Math.Sqrt(Math.Pow(pixel.ObtenX() - centro.ObtenX(), 2) + Math.Pow(pixel.ObtenY() - centro.ObtenY(), 2)));
+                if (partes) {parte1.Add(Math.Sqrt(Math.Pow(pixel.ObtenX() - centro.ObtenX(), 2)
+                                + Math.Pow(pixel.ObtenY() - centro.ObtenY(), 2)));} else {parte2.Add(Math.Sqrt(Math.Pow(pixel.ObtenX() - centro.ObtenX(), 2)
+                                + Math.Pow(pixel.ObtenY() - centro.ObtenY(), 2)));}
+                partes = !partes;
             }
+            distancias.Add(parte1);
+            distancias.Add(parte2);
             return distancias;
         }
 
@@ -321,7 +341,6 @@ namespace ReconocimientoFiguras {
             foreach (Figura figura in figuras)
             {
                 Console.WriteLine(figura.AString());
-                Pixel centro = figura.EncuentraCentro();
                 Console.WriteLine("Centro: " + centro.ObtenX() + ", " + centro.ObtenY());
             }
         }
