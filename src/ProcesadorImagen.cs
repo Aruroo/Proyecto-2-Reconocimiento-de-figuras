@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace ReconocimientoFiguras {
     public class Pixel {
@@ -97,7 +96,7 @@ namespace ReconocimientoFiguras {
         /// Encuentra el centro de la figura.
         /// </summary>
         /// <returns> El Pixel del centro de la figura. </returns>
-        private Pixel EncuentraCentro()
+        public Pixel EncuentraCentro()
         {
             if(pixeles.Count == 0)
             {
@@ -124,52 +123,70 @@ namespace ReconocimientoFiguras {
         /// <returns> Cantidad de máximos, o bien, el número de vértices de esta figura. </returns>
         private int EncuentraVertices()
         {
-            List<List<double>> distancias = ObtenDistancias();
-            int maximos = 0;
-            for(int i = 1; i < distancias.Count; i++)
-            {
-                for(int j = 0; j < distancias[0].Count; j++)
-                {
-                    if((j+1 < distancias[0].Count) && (distancias[0][j] > distancias[j - 1]) && (distancias[j] > distancias[j + 1])) {
-                    maximos++;
-                    }
-                }
+           List <double> distancias = ObtenDistancias();
 
-                for(int k = 0; j < distancias[1].Count; j++)
-                {
-                    if((k+1 < distancias[1].Count) && (distancias[1][k] > distancias[k - 1]) && (distancias[1][k] > distancias[k + 1])) {
-                    maximos++;
-                    }
-                }
+           int maximos = 0;
+
+           for(int i = 2; i < distancias.Count - 2; i++)
+           {
+            //comparamos el actual con los dos anteriores y los dos siguientes
+            if(distancias[i] > distancias[i - 1] && distancias[i] > distancias[i - 2]
+                 && distancias[i] > distancias[i + 1] && distancias[i] > distancias[i + 2])
+            {
+                maximos++;
+            }  
+           }
+           //realizamos las comparaciones que faltan:
+           if(distancias.Count >3){
+            //para i = 0
+            if(distancias[0]> distancias[distancias.Count-1] && distancias[0] > distancias[distancias.Count-2]
+                && distancias[0] > distancias[1] && distancias[0] > distancias[2])
+            {
+                maximos++;
             }
-            return maximos;
+            //para i = 1
+            if(distancias[1]> distancias[0] && distancias[1] > distancias[distancias.Count-1]
+                && distancias[1] > distancias[2] && distancias[1] > distancias[3])
+            {
+                maximos++;
+            }
+            //para i = distancias.Count - 1
+            if(distancias[distancias.Count - 1]> distancias[distancias.Count - 2] && distancias[distancias.Count - 1] > distancias[distancias.Count - 3]
+                && distancias[distancias.Count - 1] > distancias[0] && distancias[distancias.Count - 1] > distancias[1])
+            {
+                maximos++;
+            }
+            //para i = distancias.Count - 2
+            if(distancias[distancias.Count - 2]> distancias[distancias.Count - 3] && distancias[distancias.Count - 2] > distancias[distancias.Count - 4]
+                && distancias[distancias.Count - 2] > distancias[distancias.Count - 1] && distancias[distancias.Count - 2] > distancias[0])
+            {
+                maximos++;
+            }
+
+           }
+
+           return maximos;
+
         }
+
+        
 
         /// <summary>
         /// Obtiene las distancias entre los puntos que están en el borde y el centro de la
         /// figura.
         /// </summary>
         /// <returns> Lista de listas de distancias (para preservar un orden). </returns>
-        private List<List<double>> ObtenDistancias()
+        public List<double> ObtenDistancias()
         {
-            List<List<double>> distancias;
-            List<double> parte1;
-            List<double> parte2;
-
-            // Variable que controla el almacenamiento de las distancias.
-            bool partes = true;
-
+            List<double> distancias = new List<double>();
             Pixel centro = EncuentraCentro();
             List<Pixel> bordes = ObtenBordes();
             foreach (Pixel pixel in bordes)
             {
-                if (partes) {parte1.Add(Math.Sqrt(Math.Pow(pixel.ObtenX() - centro.ObtenX(), 2)
-                                + Math.Pow(pixel.ObtenY() - centro.ObtenY(), 2)));} else {parte2.Add(Math.Sqrt(Math.Pow(pixel.ObtenX() - centro.ObtenX(), 2)
-                                + Math.Pow(pixel.ObtenY() - centro.ObtenY(), 2)));}
-                partes = !partes;
+                distancias.Add(Math.Sqrt(Math.Pow(pixel.ObtenX() - centro.ObtenX(), 2)
+                                + Math.Pow(pixel.ObtenY() - centro.ObtenY(), 2)));
+            
             }
-            distancias.Add(parte1);
-            distancias.Add(parte2);
             return distancias;
         }
 
@@ -180,14 +197,103 @@ namespace ReconocimientoFiguras {
         private List<Pixel> ObtenBordes()
         {
             List<Pixel> bordes = new List<Pixel>();
-
-            foreach (Pixel pixel in pixeles)
-            {
-                if(VecinoEnFondo(pixel.ObtenX(), pixel.ObtenY())){
-                    bordes.Add(pixel);
-                } 
+            bordes.Add(pixeles[0]);
+            Pixel siguiente = ObtenSiguienteBorde(bordes, this.pixeles[0]);
+            while (siguiente != null){
+                bordes.Add(siguiente);
+                siguiente = ObtenSiguienteBorde(bordes, siguiente);
             }
+        
             return bordes;
+        }
+
+
+        /// <summary>
+        /// Obtiene el siguiente pixel en el borde que no se ha agregado a una lista dada.
+        /// Suponemos que el pixel es borde.
+        /// </summary>
+        /// <returns> El siguiente pixel en el borde (Null si no hay). </returns>
+        private Pixel ObtenSiguienteBorde(List<Pixel> bordes, Pixel pixel){
+
+            //Probamos primero con el pixel de arriba
+            Pixel pixelArriba = new Pixel(pixel.ObtenX(), pixel.ObtenY() - 1, pixel.ObtenColor());
+            if(!YaAgregado(bordes, pixelArriba) && EsBorde(pixelArriba.ObtenX(), pixelArriba.ObtenY())){
+                return pixelArriba;
+            }
+
+             //Probamos con el pixel de arriba a la derecha
+            Pixel pixelArribaDerecha = new Pixel(pixel.ObtenX() + 1, pixel.ObtenY() - 1, pixel.ObtenColor());
+            if(!YaAgregado(bordes, pixelArribaDerecha) && EsBorde(pixelArribaDerecha.ObtenX(), pixelArribaDerecha.ObtenY())){
+                return pixelArribaDerecha;
+            }
+
+            //Probamos con el pixel de la derecha
+            Pixel pixelDerecha = new Pixel(pixel.ObtenX() + 1, pixel.ObtenY(), pixel.ObtenColor());
+            if(!YaAgregado(bordes, pixelDerecha) && EsBorde(pixelDerecha.ObtenX(), pixelDerecha.ObtenY())){
+                return pixelDerecha;
+            }
+
+            //Probamos con el pixel de abajo a la derecha
+            Pixel pixelAbajoDerecha = new Pixel(pixel.ObtenX() + 1, pixel.ObtenY() + 1, pixel.ObtenColor());
+            if(!YaAgregado(bordes, pixelAbajoDerecha) && EsBorde(pixelAbajoDerecha.ObtenX(), pixelAbajoDerecha.ObtenY())){
+                return pixelAbajoDerecha;
+            }
+
+            //Probamos con el pixel de abajo
+            Pixel pixelAbajo = new Pixel(pixel.ObtenX(), pixel.ObtenY() + 1, pixel.ObtenColor());
+            if(!YaAgregado(bordes, pixelAbajo) && EsBorde(pixelAbajo.ObtenX(), pixelAbajo.ObtenY())){
+                return pixelAbajo;
+            }
+
+            //Probamos con el pixel de abajo a la izquierda
+            Pixel pixelAbajoIzquierda = new Pixel(pixel.ObtenX() - 1, pixel.ObtenY() + 1, pixel.ObtenColor());
+            if(!YaAgregado(bordes, pixelAbajoIzquierda) && EsBorde(pixelAbajoIzquierda.ObtenX(), pixelAbajoIzquierda.ObtenY())){
+                return pixelAbajoIzquierda;
+            }
+
+            //Probamos con el pixel de la izquierda
+            Pixel pixelIzquierda = new Pixel(pixel.ObtenX() - 1, pixel.ObtenY(), pixel.ObtenColor());
+            if(!YaAgregado(bordes, pixelIzquierda) && EsBorde(pixelIzquierda.ObtenX(), pixelIzquierda.ObtenY())){
+                return pixelIzquierda;
+            }
+
+            //Probamos con el pixel de arriba a la izquierda
+            Pixel pixelArribaIzquierda = new Pixel(pixel.ObtenX() - 1, pixel.ObtenY() - 1, pixel.ObtenColor());
+            if(!YaAgregado(bordes, pixelArribaIzquierda) && EsBorde(pixelArribaIzquierda.ObtenX(), pixelArribaIzquierda.ObtenY())){
+                return pixelArribaIzquierda;
+            }
+
+            return null;
+        }
+
+
+        private static bool YaAgregado(List<Pixel> pixeles, Pixel pixel)
+        {
+            if (pixeles.Count == 0)
+            {
+                return false;
+            }
+            foreach(Pixel p in pixeles)
+            {
+                if(pixel.ObtenX() == p.ObtenX() && pixel.ObtenY() == p.ObtenY())
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        private bool EsBorde(int x , int y){
+            bool estaEnFigura = false;
+            foreach(Pixel p in this.pixeles)
+            {
+                if(x == p.ObtenX() && y == p.ObtenY())
+                {
+                    estaEnFigura = true;
+                    break;
+                }
+            }
+            return estaEnFigura && VecinoEnFondo(x, y);
         }
     
         /// <summary>
@@ -198,14 +304,7 @@ namespace ReconocimientoFiguras {
         /// <returns> True si alguno de sus pixeles vecinos es del color de fondo. </returns>
         public bool VecinoEnFondo(int x, int y)
         {
-            try{
-                return (EsFondo(x-1, y-1) || EsFondo(x-1, y) || EsFondo(x-1, y+1) ||
-                    EsFondo(x, y-1)  || EsFondo(x, y+1) || EsFondo(x+1, y-1) ||
-                    EsFondo (x+1, y) || EsFondo(x+1, y+1));
-            }
-            catch (System.ArgumentOutOfRangeException){
-                return true;
-            }
+            return (EsFondo(x, y - 1) || EsFondo(x, y + 1) || EsFondo(x - 1, y) || EsFondo(x + 1, y));   
         }
         
         /// <summary>
@@ -215,7 +314,15 @@ namespace ReconocimientoFiguras {
         /// <param name = "y"> Coordenada y del pixel. </param>
         /// <returns> True si el pixel es del color de fondo. </returns>
         private bool EsFondo(int x, int y){
-            return imagen.GetPixel(x, y).Equals(imagen.GetPixel(0, 0));
+            try
+            {
+                return  imagen.GetPixel(x, y).Equals(imagen.GetPixel(0, 0));
+            }
+            catch (System.Exception)
+            {
+                
+                return true;
+            }
         }
 
         /// <summary>
@@ -228,6 +335,9 @@ namespace ReconocimientoFiguras {
         public string DeterminaFigura()
         {
             int numeroVertices = EncuentraVertices();
+            if (numeroVertices ==2){
+                return "Esto no deberia estar pasando";
+            }
             if(numeroVertices == 3)
             {
                 return "Triangulo";
@@ -290,7 +400,7 @@ namespace ReconocimientoFiguras {
         /// </summary>
         /// <param name = "pixel"> Pixel a anexar. </param>
         /// <param name = "figuras"> Lista de figuras. </param>
-        public void AnexaPixel(List<Figura> figuras, Pixel pixel)
+        private void AnexaPixel(List<Figura> figuras, Pixel pixel)
         {
             bool agregado = false;
 
@@ -314,18 +424,6 @@ namespace ReconocimientoFiguras {
                 figuras.Add(figura);
             }
         }      
-
-        /// <summary>
-        /// Representa a la imagen como una cadena en el cual muestra qué tipo de figuras
-        /// hay con sus respectivos colores.
-        /// </summary>
-        /// <returns> La cadena con la información de la imagen. </returns>
-        public string ToString() {
-            foreach (Figura figura in figuras)
-            {
-                "Color: " + figura.ObtenColor().ToArgb() + " Figura: " + figura.DeterminaFigura() + "\n";
-            }
-        }
     }
 
     public class MainClass
@@ -333,91 +431,19 @@ namespace ReconocimientoFiguras {
         public static void Main(string[] args)
         {
             Console.WriteLine("Introduce la dirección de la imagen");
-            string nombreImagen = Console.ReadLine();
+            string nombreImagen = "/home/arturo/Descargas/Ejemplos/example_2.bmp";
             Bitmap imagen = new Bitmap(nombreImagen);
             ProcesadorImagen procesador = new ProcesadorImagen(imagen);
             Console.WriteLine("La imagen tiene {0} pixeles de ancho y {1} pixeles de alto", imagen.Width, imagen.Height);
             List<Figura> figuras = procesador.RecorreImagen();
+            Console.WriteLine("La imagen tiene {0} figuras", figuras.Count);
             foreach (Figura figura in figuras)
             {
-                Console.WriteLine(figura.AString());
-                Console.WriteLine("Centro: " + centro.ObtenX() + ", " + centro.ObtenY());
+                Console.WriteLine("Figura: " + figura.DeterminaFigura());
             }
+
         }
     }
 
-    [TestClass]
-    public class PruebaPixel {
 
-        [TestMethod]
-        public void PruebaConstructorPixel() {
-            Pixel pixel = new Pixel(1, 2, Color.Red);
-            Assert.AreEqual(1, pixel.ObtenX());
-            Assert.AreEqual(2, pixel.ObtenY());
-            Assert.AreEqual(Color.Red, pixel.ObtenColor());
-        }
-    }
-
-    [TestClass]
-    public class PruebaFigura {
-
-        [TestMethod]
-        public void PruebaConstructorFigura() {
-            List<Pixel> pixeles = new List<Pixel>();
-            pixeles.Add(new Pixel(1, 2, Color.Red));
-            pixeles.Add(new Pixel(2, 3, Color.Red));
-            pixeles.Add(new Pixel(3, 4, Color.Red));
-            Bitmap imagen = new Bitmap(5, 5);
-            Figura figura = new Figura(pixeles, imagen);
-            Assert.AreEqual(Color.Red, figura.ObtenColor());
-        }
-
-        [TestMethod]
-        public void PruebaEncuentraCentro() {
-            List<Pixel> pixeles = new List<Pixel>();
-            pixeles.Add(new Pixel(1, 2, Color.Red));
-            pixeles.Add(new Pixel(2, 3, Color.Red));
-            pixeles.Add(new Pixel(3, 4, Color.Red));
-            pixeles.Add(new Pixel(4, 5, Color.Red));
-            Bitmap imagen = new Bitmap(5, 5);
-            Figura figura = new Figura(pixeles, imagen);
-            Assert.AreEqual(3, figura.EncuentraCentro().ObtenX());
-            Assert.AreEqual(3, figura.EncuentraCentro().ObtenY());
-        }
-
-        [TestMethod]
-        public void PruebaAgregaPixel() {
-            List<Pixel> pixeles = new List<Pixel>();
-            pixeles.Add(new Pixel(1, 2, Color.Red));
-            Bitmap imagen = new Bitmap(5, 5);
-            Figura figura = new Figura(pixeles, imagen);
-            figura.AgregaPixel(new Pixel(2, 3, Color.Red));
-            Assert.AreEqual(2, figura.ObtenPixeles().Count);
-            figura.AgregaPixel(new Pixel(3, 4, Color.Red));
-            Assert.AreEqual(3, figura.ObtenPixeles().Count);
-            figura.AgregaPixel(new Pixel(4, 5, Color.Red));
-            Assert.AreEqual(4, figura.ObtenPixeles().Count);
-        }
-    }
-
-    [TestClass]
-    public class PruebaProcesadorImagen {
-
-        [TestMethod]
-        public void PruebaRecorreImagen() {
-            Bitmap imagen = new Bitmap(5, 5);
-            ProcesadorImagen procesador = new ProcesadorImagen(imagen);
-            List<Figura> figuras = procesador.RecorreImagen();
-            Assert.AreEqual(1, figuras.Count);
-        }
-
-        [TestMethod]
-        public void PruebaAnexaPixel() {
-            Bitmap imagen = new Bitmap(5, 5);
-            ProcesadorImagen procesador = new ProcesadorImagen(imagen);
-            List<Figura> figuras = procesador.RecorreImagen();
-            procesador.AnexaPixel(figuras, new Pixel(1, 2, Color.Red));
-            Assert.AreEqual(2, figuras.Count);
-        }
-    }
 } 
