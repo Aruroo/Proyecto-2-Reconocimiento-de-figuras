@@ -50,6 +50,7 @@ namespace ReconocimientoFiguras {
         private List<Pixel> pixeles;
         private Bitmap imagen;
         private Color color;
+        private string nombre;
 
         /// <summary>
         /// Constructor de la clase Figura.
@@ -57,9 +58,19 @@ namespace ReconocimientoFiguras {
         /// <param name = "pixeles"> Lista de pixeles que conforman la figura. </param>
         /// Suponemos que todos los pixeles de la lista son del mismo color.
         public Figura(List<Pixel> pixeles, Bitmap imagen){
+            if(pixeles == null || pixeles.Count == 0 || imagen == null){
+                throw new ArgumentException("La lista de pixeles no puede ser nula o vacía, la imagen debe estar en un Bitmap.");
+            }
             this.pixeles = pixeles;
             this.imagen = imagen;
             this.color = pixeles[0].ObtenColor();
+        }
+        
+       
+
+        public string ObtenNombre(){
+            this.nombre = DeterminaFigura();
+            return nombre;
         }
 
         /// <summary>
@@ -75,6 +86,14 @@ namespace ReconocimientoFiguras {
         /// <returns> El color de esta figura. </returns>
         public Color ObtenColor(){
             return color;
+        }
+        
+        /// <summary>
+        /// Obtiene la representación hexadecimal del color de la figura.
+        /// </summary>
+        /// <returns> La representación hexadecimal del color de la figura. </returns>
+        public string ObtenColorHex(){
+            return color.R.ToString("X2") + color.G.ToString("X2") + color.B.ToString("X2");
         }
 
         /// <summary>
@@ -93,10 +112,217 @@ namespace ReconocimientoFiguras {
         }
 
         /// <summary>
+        /// Algoritmo que determina que figura es de acuerdo a su número de vértices.
+        /// </summary>
+        /// <returns>
+        /// Una cadena con el nombre de la figura:
+        /// Triangulo, Cuadrilatero, Circulo u otro.
+        /// </returns>
+        private string DeterminaFigura()
+        {
+            int numeroVertices = EncuentraVertices();
+            if(numeroVertices == 3)
+            {
+                return "T";
+            } else if(numeroVertices == 4)
+            {
+                return "C";
+            } else if(numeroVertices == 0 || numeroVertices > 12)
+            {
+                return "0";
+            } else
+            {
+                return "X";
+            }
+
+        }
+
+        /// <summary>
+        /// Algoritmo que obtiene la cantidad de máximos que hay entre las distancias desde
+        /// el centro de la figura hasta los puntos del borde. La cantidad de máximos serán
+        /// interpretados como los vértices.
+        /// </summary>
+        /// <returns> Cantidad de máximos, o bien, el número de vértices de esta figura. </returns>
+        private int EncuentraVertices()
+        {
+           Pixel centro = EncuentraCentro();
+
+           if(EsBorde(centro.ObtenX(), centro.ObtenY()))
+           {
+                //si el centro es borde, entonces es un triangulo
+               return 3;
+           }
+
+           List <double> distancias = ObtenDistancias();
+
+           int maximos = 0;
+
+           for(int i = 0; i< distancias.Count; i++){
+                if(EsMaximo(distancias, i)){
+                    maximos++;
+                }
+           }
+
+           return maximos;
+
+        }
+        
+        /// <summary>
+        /// Compara el elemento dado con los cuatro anteriores y los cuatro
+        /// siguientes, si es mayor que todos, entonces es un máximo.
+        /// </summary>
+        /// <param name="lista"> La lista de elementos. </param>
+        /// <param name="indice"> El índice del elemento a comparar. </param>
+        private static bool EsMaximo(List<double> lista, int i){
+
+            if(lista.Count < 9){
+                return false;
+            }
+            
+            // Si el elemento es el primero de la lista, lo comparamos con los 
+            // cuatro finales y los cuatro iniciales.
+            if(i == 0){
+                for(int j = 1; j < 5; j++){
+                    if(lista[i] < lista[j]){
+                        return false;
+                    }
+                }
+                for(int j = lista.Count - 4; j < lista.Count; j++){
+                    if(lista[i] < lista[j]){
+                        return false;
+                    }
+                }
+                return true;
+            }
+            if(i == 1){
+                for(int j = 0; j < 6; j++){
+                    if(lista[i] < lista[j]){
+                        return false;
+                    }
+                }
+                for(int j = lista.Count - 3; j < lista.Count; j++){
+                    if(lista[i] < lista[j]){
+                        return false;
+                    }
+                }
+                return true;
+            }
+            if(i == 2){
+                for(int j = 0; j < 7; j++){
+                    if(lista[i] < lista[j]){
+                        return false;
+                    }
+                }
+                for(int j = lista.Count - 2; j < lista.Count; j++){
+                    if(lista[i] < lista[j]){
+                        return false;
+                    }
+                }
+                return true;
+            }
+
+            if(i == 3){
+                for(int j = 0; j < 8; j++){
+                    if(lista[i] < lista[j]){
+                        return false;
+                    }
+                }
+                if(lista[i] < lista[lista.Count - 1]){
+                    return false;
+                }
+                
+                return true;
+            }
+
+            // Si el elemento es el último de la lista, lo comparamos con los
+            // cuatro iniciales y los cuatro finales.
+            if(i == lista.Count - 1){
+                for(int j = 0; j < 4; j++){
+                    if(lista[i] < lista[j]){
+                        return false;
+                    }
+                }
+                for(int j = lista.Count - 5; j < lista.Count - 1; j++){
+                    if(lista[i] < lista[j]){
+                        return false;
+                    }
+                }
+                return true;
+            }
+
+            if(i == lista.Count - 2){
+                for(int j = 0; j < 3; j++){
+                    if(lista[i] < lista[j]){
+                        return false;
+                    }
+                }
+                for(int j = lista.Count - 6; j < lista.Count; j++){
+                    if(lista[i] < lista[j]){
+                        return false;
+                    }
+                }
+                return true;
+            }
+
+            if(i == lista.Count-3){
+                for(int j = 0; j < 2; j++){
+                    if(lista[i] < lista[j]){
+                        return false;
+                    }
+                }
+                for(int j = lista.Count - 7; j < lista.Count; j++){
+                    if(lista[i] < lista[j]){
+                        return false;
+                    }
+                }
+                return true;
+            }
+
+            if( i == lista.Count - 4){
+                if(lista[i] < lista[0]){
+                    return false;
+                }
+                for(int j = lista.Count - 8; j < lista.Count; j++){
+                    if(lista[i] < lista[j]){
+                        return false;
+                    }
+                }
+                return true;
+            }
+
+            //caso general:
+            for(int j = i - 4; j <= i + 4; j++){
+                if(j != i && lista[j] > lista[i]){
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// Obtiene las distancias entre los puntos que están en el borde y el centro de la
+        /// figura.
+        /// </summary>
+        /// <returns> Lista de listas de distancias (para preservar un orden). </returns>
+        private List<double> ObtenDistancias()
+        {
+            List<double> distancias = new List<double>();
+            Pixel centro = EncuentraCentro();
+            List<Pixel> bordes = ObtenBordes();
+            foreach (Pixel pixel in bordes)
+            {
+                distancias.Add(Math.Sqrt(Math.Pow(pixel.ObtenX() - centro.ObtenX(), 2)
+                                + Math.Pow(pixel.ObtenY() - centro.ObtenY(), 2)));
+            }
+            return distancias;
+        }
+
+        /// <summary>
         /// Encuentra el centro de la figura.
         /// </summary>
         /// <returns> El Pixel del centro de la figura. </returns>
-        public Pixel EncuentraCentro()
+        private Pixel EncuentraCentro()
         {
             if(pixeles.Count == 0)
             {
@@ -113,81 +339,6 @@ namespace ReconocimientoFiguras {
                 }
                 return centro;
             }
-        }
-
-        /// <summary>
-        /// Algoritmo que obtiene la cantidad de máximos que hay entre las distancias desde
-        /// el centro de la figura hasta los puntos del borde. La cantidad de máximos serán
-        /// interpretados como los vértices.
-        /// </summary>
-        /// <returns> Cantidad de máximos, o bien, el número de vértices de esta figura. </returns>
-        private int EncuentraVertices()
-        {
-           List <double> distancias = ObtenDistancias();
-
-           int maximos = 0;
-
-           for(int i = 2; i < distancias.Count - 2; i++)
-           {
-            //comparamos el actual con los dos anteriores y los dos siguientes
-            if(distancias[i] > distancias[i - 1] && distancias[i] > distancias[i - 2]
-                 && distancias[i] > distancias[i + 1] && distancias[i] > distancias[i + 2])
-            {
-                maximos++;
-            }  
-           }
-           //realizamos las comparaciones que faltan:
-           if(distancias.Count >3){
-            //para i = 0
-            if(distancias[0]> distancias[distancias.Count-1] && distancias[0] > distancias[distancias.Count-2]
-                && distancias[0] > distancias[1] && distancias[0] > distancias[2])
-            {
-                maximos++;
-            }
-            //para i = 1
-            if(distancias[1]> distancias[0] && distancias[1] > distancias[distancias.Count-1]
-                && distancias[1] > distancias[2] && distancias[1] > distancias[3])
-            {
-                maximos++;
-            }
-            //para i = distancias.Count - 1
-            if(distancias[distancias.Count - 1]> distancias[distancias.Count - 2] && distancias[distancias.Count - 1] > distancias[distancias.Count - 3]
-                && distancias[distancias.Count - 1] > distancias[0] && distancias[distancias.Count - 1] > distancias[1])
-            {
-                maximos++;
-            }
-            //para i = distancias.Count - 2
-            if(distancias[distancias.Count - 2]> distancias[distancias.Count - 3] && distancias[distancias.Count - 2] > distancias[distancias.Count - 4]
-                && distancias[distancias.Count - 2] > distancias[distancias.Count - 1] && distancias[distancias.Count - 2] > distancias[0])
-            {
-                maximos++;
-            }
-
-           }
-
-           return maximos;
-
-        }
-
-        
-
-        /// <summary>
-        /// Obtiene las distancias entre los puntos que están en el borde y el centro de la
-        /// figura.
-        /// </summary>
-        /// <returns> Lista de listas de distancias (para preservar un orden). </returns>
-        public List<double> ObtenDistancias()
-        {
-            List<double> distancias = new List<double>();
-            Pixel centro = EncuentraCentro();
-            List<Pixel> bordes = ObtenBordes();
-            foreach (Pixel pixel in bordes)
-            {
-                distancias.Add(Math.Sqrt(Math.Pow(pixel.ObtenX() - centro.ObtenX(), 2)
-                                + Math.Pow(pixel.ObtenY() - centro.ObtenY(), 2)));
-            
-            }
-            return distancias;
         }
 
         /// <summary>
@@ -302,7 +453,7 @@ namespace ReconocimientoFiguras {
         /// <param name = "x"> Coordenada x del pixel. </param>
         /// <param name = "y"> Coordenada y del pixel. </param>
         /// <returns> True si alguno de sus pixeles vecinos es del color de fondo. </returns>
-        public bool VecinoEnFondo(int x, int y)
+        private bool VecinoEnFondo(int x, int y)
         {
             return (EsFondo(x, y - 1) || EsFondo(x, y + 1) || EsFondo(x - 1, y) || EsFondo(x + 1, y));   
         }
@@ -325,34 +476,6 @@ namespace ReconocimientoFiguras {
             }
         }
 
-        /// <summary>
-        /// Algoritmo que determina que figura es de acuerdo a su número de vértices.
-        /// </summary>
-        /// <returns>
-        /// Una cadena con el nombre de la figura:
-        /// Triangulo, Cuadrilatero, Circulo u otro.
-        /// </returns>
-        public string DeterminaFigura()
-        {
-            int numeroVertices = EncuentraVertices();
-            if (numeroVertices ==2){
-                return "Esto no deberia estar pasando";
-            }
-            if(numeroVertices == 3)
-            {
-                return "Triangulo";
-            } else if(numeroVertices == 4)
-            {
-                return "Cuadrilatero";
-            } else if(numeroVertices == 0 || numeroVertices > 12)
-            {
-                return "Circulo";
-            } else
-            {
-                return "Otro";
-            }
-
-        }
     }
 
     public class ProcesadorImagen {
@@ -366,10 +489,18 @@ namespace ReconocimientoFiguras {
         public ProcesadorImagen(Bitmap imagen){
             if (imagen == null)
             {
-                throw new ArgumentNullException("imagen");
+                throw new ArgumentNullException("imagen invalida");
             }
             this.imagen = imagen;
+        }
+
+        /// <summary>
+        /// Devuelve la lista de figuras encontradas en la imagen.
+        /// </summary>
+        /// <returns> Lista de figuras. </returns>
+        public List<Figura> ObtenFiguras(){
             this.figuras = RecorreImagen();
+            return figuras;
         }
 
         /// <summary>
@@ -377,7 +508,7 @@ namespace ReconocimientoFiguras {
         /// Se presupone que cada figura tiene un color diferente.
         /// </summary>
         /// <returns> Una lista con las figuras presentes en la imagen. </returns>
-        public List<Figura> RecorreImagen(){
+        private List<Figura> RecorreImagen(){
             //El color del fondo es el primer pixel en la imagen.
             Pixel fondoPixel = new Pixel(0,0,imagen.GetPixel(0,0));
             List <Figura> figuras = new List<Figura>();
@@ -431,15 +562,15 @@ namespace ReconocimientoFiguras {
         public static void Main(string[] args)
         {
             Console.WriteLine("Introduce la dirección de la imagen");
-            string nombreImagen = "/home/arturo/Descargas/Ejemplos/example_2.bmp";
+            string nombreImagen = "/home/arturo/Descargas/Ejemplos/example_5.bmp";
             Bitmap imagen = new Bitmap(nombreImagen);
             ProcesadorImagen procesador = new ProcesadorImagen(imagen);
             Console.WriteLine("La imagen tiene {0} pixeles de ancho y {1} pixeles de alto", imagen.Width, imagen.Height);
-            List<Figura> figuras = procesador.RecorreImagen();
+            List<Figura> figuras = procesador.ObtenFiguras();
             Console.WriteLine("La imagen tiene {0} figuras", figuras.Count);
             foreach (Figura figura in figuras)
             {
-                Console.WriteLine("Figura: " + figura.DeterminaFigura());
+                Console.WriteLine("{1} = {0}" , figura.ObtenNombre() , figura.ObtenColorHex());
             }
 
         }
