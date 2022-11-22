@@ -127,7 +127,7 @@ namespace ReconocimientoFiguras {
             } else if(numeroVertices == 4)
             {
                 return "C";
-            } else if(numeroVertices == 0 || numeroVertices > 12)
+            } else if(numeroVertices == 0 || numeroVertices > 8)
             {
                 return "0";
             } else
@@ -153,7 +153,8 @@ namespace ReconocimientoFiguras {
                return 3;
            }
 
-           List <double> distancias = ObtenDistancias();
+           List <double> distancias = ObtenDistancias(centro);
+           distancias = SuavizaDistancias(distancias);
 
            int maximos = 0;
 
@@ -166,6 +167,42 @@ namespace ReconocimientoFiguras {
            return maximos;
 
         }
+
+        ///<summary>
+        ///algoritmo que suaviza la lista de distancias
+        // para que los bordes de la figura sean mejor definidos.
+        ///</summary>
+        ///<returns> La lista de distancias suavizadas.
+        private List<double> SuavizaDistancias(List<double> lista){
+            List<double> distanciasSuavizadas = new List<double>();
+            
+            for(int i = 2 ; i < lista.Count-3; i++){
+                distanciasSuavizadas.Add(Promedia(i-2, i+2, lista));
+            }
+            return distanciasSuavizadas;
+
+        }
+
+        ///<summary>
+        ///Algoritmo que promedia los valores en el rango
+        // dado, suponemos que min y max son valores válidos en la lista.
+        ///</summary>
+        /// <param name = "lista"> Lista de pixeles que conforman la figura. </param>
+        /// <param name = "min"> el primer elemento del rango a promediar </param>
+        ///<returns> La lista de distancias suavizadas.
+        private static double Promedia(int min, int max, List<double> lista){
+            if(min>max || lista.Count < max){
+                throw new ArgumentException("rango invalido");
+            }
+            double prom = 0;
+            for(int i =  min; i <= max; i++){
+                prom += lista[i];
+            }
+            prom = prom/(max-min);
+            return prom;
+        }
+
+
         
         /// <summary>
         /// Compara el elemento dado con los cuatro anteriores y los cuatro
@@ -304,11 +341,11 @@ namespace ReconocimientoFiguras {
         /// Obtiene las distancias entre los puntos que están en el borde y el centro de la
         /// figura.
         /// </summary>
+        ///<param name = "centro"> el centro de la figura </param>
         /// <returns> Lista de listas de distancias (para preservar un orden). </returns>
-        private List<double> ObtenDistancias()
+        private List<double> ObtenDistancias(Pixel centro)
         {
             List<double> distancias = new List<double>();
-            Pixel centro = EncuentraCentro();
             List<Pixel> bordes = ObtenBordes();
             foreach (Pixel pixel in bordes)
             {
@@ -562,19 +599,26 @@ namespace ReconocimientoFiguras {
         public static void Main(string[] args)
         {
             Console.WriteLine("Introduce la dirección de la imagen");
-            string nombreImagen = "/home/arturo/Descargas/Ejemplos/example_5.bmp";
-            Bitmap imagen = new Bitmap(nombreImagen);
-            ProcesadorImagen procesador = new ProcesadorImagen(imagen);
-            Console.WriteLine("La imagen tiene {0} pixeles de ancho y {1} pixeles de alto", imagen.Width, imagen.Height);
-            List<Figura> figuras = procesador.ObtenFiguras();
-            Console.WriteLine("La imagen tiene {0} figuras", figuras.Count);
-            foreach (Figura figura in figuras)
+            try
             {
-                Console.WriteLine("{1} = {0}" , figura.ObtenNombre() , figura.ObtenColorHex());
+                string nombreImagen = Console.ReadLine();
+                Bitmap imagen = new Bitmap(nombreImagen);
+                ProcesadorImagen procesador = new ProcesadorImagen(imagen);
+                List<Figura> figuras = procesador.ObtenFiguras();
+                Console.WriteLine("La imagen tiene {0} figuras", figuras.Count);
+                foreach (Figura figura in figuras)
+                {
+                    Console.WriteLine("{1} = {0}" , figura.ObtenNombre() , figura.ObtenColorHex());
+                }
+                
+            }
+            catch (System.Exception)
+            {
+                Console.WriteLine("Error al leer la imagen, por favor intenta de nuevo.");
+                Main(args);
             }
 
         }
     }
-
 
 } 
