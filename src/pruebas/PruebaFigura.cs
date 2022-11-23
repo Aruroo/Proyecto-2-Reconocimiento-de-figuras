@@ -1,22 +1,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
-using ProcesadorImagen.Pixel;
 using ProcesadorImagen.Figura;
-using ProcesadorImagen.ProcesadorImagen;
-
-    ///[TestClass]
-    public class PruebaPixel {
-
-        ///[TestMethod]
-        public void PruebaConstructorPixel() {
-            Pixel pixel = new Pixel(1, 2, Color.Red);
-            Assert.AreEqual(1, pixel.ObtenX());
-            Assert.AreEqual(2, pixel.ObtenY());
-            Assert.AreEqual(Color.Red, pixel.ObtenColor());
-        }
-    }
-
 
     ///[TestClass]
     public class PruebaFigura {
@@ -57,26 +42,5 @@ using ProcesadorImagen.ProcesadorImagen;
             Assert.AreEqual(3, figura.ObtenPixeles().Count);
             figura.AgregaPixel(new Pixel(4, 5, Color.Red));
             Assert.AreEqual(4, figura.ObtenPixeles().Count);
-        }
-    }
-
-    ///[TestClass]
-    public class PruebaProcesadorImagen {
-
-        ///[TestMethod]
-        public void PruebaRecorreImagen() {
-            Bitmap imagen = new Bitmap(5, 5);
-            ProcesadorImagen procesador = new ProcesadorImagen(imagen);
-            List<Figura> figuras = procesador.RecorreImagen();
-            Assert.AreEqual(1, figuras.Count);
-        }
-
-        ///[TestMethod]
-        public void PruebaAnexaPixel() {
-            Bitmap imagen = new Bitmap(5, 5);
-            ProcesadorImagen procesador = new ProcesadorImagen(imagen);
-            List<Figura> figuras = procesador.RecorreImagen();
-            procesador.AnexaPixel(figuras, new Pixel(1, 2, Color.Red));
-            Assert.AreEqual(2, figuras.Count);
         }
     }
