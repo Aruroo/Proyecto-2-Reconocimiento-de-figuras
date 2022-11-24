@@ -3,15 +3,15 @@
 **Modelado y Programación.**
 **Segundo Proyecto**
 
-Integrantes:
+**Integrantes:**
 
-Jonathan Arturo Preciado Reyes @Aruroo
+- Jonathan Arturo Preciado Reyes @Aruroo
 
-No. Cuenta: 318310516
+    No. Cuenta: 318310516
 
-Jorge Daniel Velasco García @J0rgeV
+- Jorge Daniel Velasco García @J0rgeV
 
-No. Cuenta: 319238545
+    No. Cuenta: 319238545
 
 
 **Compilación y ejecución en Windows:**
