@@ -1,12 +1,17 @@
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
+using System.Drawing;
+using System.Drawing.Imaging;
 using System.Collections.Generic;
-using ProcesadorImagen.Figura;
+using Procesador;
+using ReconocimientoFiguras;
+using Pixels;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-    ///[TestClass]
-    public class PruebaFigura {
 
-        ///[TestMethod]
+[TestClass]
+public class PruebaFigura {
+
+        [TestMethod]
         public void PruebaConstructorFigura() {
             List<Pixel> pixeles = new List<Pixel>();
             pixeles.Add(new Pixel(1, 2, Color.Red));
@@ -17,7 +22,7 @@ using ProcesadorImagen.Figura;
             Assert.AreEqual(Color.Red, figura.ObtenColor());
         }
 
-        ///[TestMethod]
+        [TestMethod]
         public void PruebaEncuentraCentro() {
             List<Pixel> pixeles = new List<Pixel>();
             pixeles.Add(new Pixel(1, 2, Color.Red));
@@ -30,7 +35,7 @@ using ProcesadorImagen.Figura;
             Assert.AreEqual(3, figura.EncuentraCentro().ObtenY());
         }
 
-        ///[TestMethod]
+        [TestMethod]
         public void PruebaAgregaPixel() {
             List<Pixel> pixeles = new List<Pixel>();
             pixeles.Add(new Pixel(1, 2, Color.Red));

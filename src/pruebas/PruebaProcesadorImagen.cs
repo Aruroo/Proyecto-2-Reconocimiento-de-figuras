@@ -1,7 +1,10 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
-using ProcesadorImagen.Figura;
-using ProcesadorImagen.ProcesadorImagen;
+using Procesador;
+using ReconocimientoFiguras;
+using Pixels;
+using System.Drawing;
+using System.Drawing.Imaging;
 using System.Collections.Generic;
 
     ///[TestClass]

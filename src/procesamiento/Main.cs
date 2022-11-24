@@ -2,7 +2,9 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System;
-using ProcesadorImagen.Figura;
+using Pixels;
+using ReconocimientoFiguras;
+using Procesador;
 
 public class MainClass {
         public static void Main(string[] args) {
@@ -21,4 +23,4 @@ public class MainClass {
                 Main(args);
             }
         }
-    }
+}

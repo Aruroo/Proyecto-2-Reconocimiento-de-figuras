@@ -1,6 +1,8 @@
-using System;
+﻿using System;
+using System.Drawing;
 
-namespace ReconocimientoFiguras {
+
+namespace Pixels {
     /// <summary>
     /// Clase que crea objetos de tipo Pixel.
     /// </summary>

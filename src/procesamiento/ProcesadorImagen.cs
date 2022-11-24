@@ -1,9 +1,11 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
+using ReconocimientoFiguras;
+using Pixels;
 using System;
 
-namespace ReconocimientoFiguras {
+namespace Procesador {
     /// <summary>
     /// Clase que representa el procesamiento de una imagen para detectar figuras.
     /// </summary>
@@ -39,7 +41,7 @@ namespace ReconocimientoFiguras {
         /// Se presupone que cada figura tiene un color diferente.
         /// </summary>
         /// <returns> Una lista con las figuras presentes en la imagen. </returns>
-        private List<Figura> RecorreImagen() {
+        public List<Figura> RecorreImagen() {
             //El color del fondo es el primer pixel en la imagen.
             Pixel fondoPixel = new Pixel(0, 0, imagen.GetPixel(0, 0));
             List <Figura> figuras = new List<Figura>();
@@ -59,7 +61,7 @@ namespace ReconocimientoFiguras {
         /// </summary>
         /// <param name = "pixel"> Pixel a anexar. </param>
         /// <param name = "figuras"> Lista de figuras. </param>
-        private void AnexaPixel(List<Figura> figuras, Pixel pixel) {
+        public void AnexaPixel(List<Figura> figuras, Pixel pixel) {
             bool agregado = false;
             if (figuras.Count != 0) {
                 foreach (Figura figura in figuras) {

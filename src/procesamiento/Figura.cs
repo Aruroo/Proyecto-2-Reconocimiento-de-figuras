@@ -1,7 +1,6 @@
-using System.Collections.Generic;
-using System.Drawing;
-using System.Drawing.Imaging;
 using System;
+using System.Drawing;
+using Pixels;
 
 namespace ReconocimientoFiguras {
     /// <summary>
@@ -124,7 +123,7 @@ namespace ReconocimientoFiguras {
         /// Algoritmo que suaviza la lista de distancias
         /// para que los bordes de la figura sean mejor definidos.
         /// </summary>
-        /// <param name = "distancias"> Lista de distancias. </param>
+        /// <param name = "lista"> Lista de distancias. </param>
         /// <returns> La lista de distancias suavizadas. </returns>
         private List<double> SuavizaDistancias(List<double> lista) {
             List<double> distanciasSuavizadas = new List<double>();
@@ -159,7 +158,7 @@ namespace ReconocimientoFiguras {
         /// siguientes para evaluar si es mayor que todos (un máximo).
         /// </summary>
         /// <param name="lista"> La lista de elementos. </param>
-        /// <param name="indice"> El índice del elemento a comparar. </param>
+        /// <param name="i"> El índice del elemento a comparar. </param>
         /// <returns> True si es un máximo, false en otro caso. </returns>
         private static bool EsMaximo(List<double> lista, int i){
             if(lista.Count < 9) {
@@ -291,7 +290,7 @@ namespace ReconocimientoFiguras {
         /// figura.
         /// </summary>
         /// <param name = "centro"> El centro de la figura. </param>
-        /// <returns> Lista de listas de distancias (para preservar un orden). </returns>
+        /// <returns> Lista de distancias ordenadas. </returns>
         private List<double> ObtenDistancias(Pixel centro) {
             List<double> distancias = new List<double>();
             List<Pixel> bordes = ObtenBordes();
@@ -306,7 +305,7 @@ namespace ReconocimientoFiguras {
         /// Encuentra el centro de la figura.
         /// </summary>
         /// <returns> El Pixel del centro de la figura. </returns>
-        private Pixel EncuentraCentro() {
+        public Pixel EncuentraCentro() {
             if (pixeles.Count == 0) {
                 return null;
             } else {
@@ -347,49 +346,42 @@ namespace ReconocimientoFiguras {
         /// <param name = "pixel"> El pixel del que se quiere encontrar el siguiente borde. </param>
         /// <returns> El siguiente pixel en el borde (Null si no hay). </returns>
         private Pixel ObtenSiguienteBorde(List<Pixel> bordes, Pixel pixel) {
-            //Probamos primero con el pixel de arriba
+            
             Pixel pixelArriba = new Pixel(pixel.ObtenX(), pixel.ObtenY() - 1, pixel.ObtenColor());
             if(!YaAgregado(bordes, pixelArriba) && EsBorde(pixelArriba.ObtenX(), pixelArriba.ObtenY())) {
                 return pixelArriba;
             }
 
-             //Probamos con el pixel de arriba a la derecha
             Pixel pixelArribaDerecha = new Pixel(pixel.ObtenX() + 1, pixel.ObtenY() - 1, pixel.ObtenColor());
             if(!YaAgregado(bordes, pixelArribaDerecha) && EsBorde(pixelArribaDerecha.ObtenX(), pixelArribaDerecha.ObtenY())) {
                 return pixelArribaDerecha;
             }
 
-            //Probamos con el pixel de la derecha
             Pixel pixelDerecha = new Pixel(pixel.ObtenX() + 1, pixel.ObtenY(), pixel.ObtenColor());
             if(!YaAgregado(bordes, pixelDerecha) && EsBorde(pixelDerecha.ObtenX(), pixelDerecha.ObtenY())) {
                 return pixelDerecha;
             }
 
-            //Probamos con el pixel de abajo a la derecha
             Pixel pixelAbajoDerecha = new Pixel(pixel.ObtenX() + 1, pixel.ObtenY() + 1, pixel.ObtenColor());
             if(!YaAgregado(bordes, pixelAbajoDerecha) && EsBorde(pixelAbajoDerecha.ObtenX(), pixelAbajoDerecha.ObtenY())) {
                 return pixelAbajoDerecha;
             }
 
-            //Probamos con el pixel de abajo
             Pixel pixelAbajo = new Pixel(pixel.ObtenX(), pixel.ObtenY() + 1, pixel.ObtenColor());
             if(!YaAgregado(bordes, pixelAbajo) && EsBorde(pixelAbajo.ObtenX(), pixelAbajo.ObtenY())) {
                 return pixelAbajo;
             }
 
-            //Probamos con el pixel de abajo a la izquierda
             Pixel pixelAbajoIzquierda = new Pixel(pixel.ObtenX() - 1, pixel.ObtenY() + 1, pixel.ObtenColor());
             if(!YaAgregado(bordes, pixelAbajoIzquierda) && EsBorde(pixelAbajoIzquierda.ObtenX(), pixelAbajoIzquierda.ObtenY())) {
                 return pixelAbajoIzquierda;
             }
 
-            //Probamos con el pixel de la izquierda
             Pixel pixelIzquierda = new Pixel(pixel.ObtenX() - 1, pixel.ObtenY(), pixel.ObtenColor());
             if(!YaAgregado(bordes, pixelIzquierda) && EsBorde(pixelIzquierda.ObtenX(), pixelIzquierda.ObtenY())) {
                 return pixelIzquierda;
             }
 
-            //Probamos con el pixel de arriba a la izquierda
             Pixel pixelArribaIzquierda = new Pixel(pixel.ObtenX() - 1, pixel.ObtenY() - 1, pixel.ObtenColor());
             if(!YaAgregado(bordes, pixelArribaIzquierda) && EsBorde(pixelArribaIzquierda.ObtenX(), pixelArribaIzquierda.ObtenY())) {
                 return pixelArribaIzquierda;
@@ -401,7 +393,7 @@ namespace ReconocimientoFiguras {
         /// <summary>
         /// Determina si un pixel ya ha sido agregado a una lista.
         /// </summary>
-        /// <param name = "bordes"> Lista de pixeles. </param>
+        /// <param name = "pixeles"> Lista de pixeles. </param>
         /// <param name = "pixel"> Pixel a buscar. </param>
         /// <returns> True si el pixel ya ha sido agregado, false en otro caso. </returns>
         private static bool YaAgregado(List<Pixel> pixeles, Pixel pixel) {
